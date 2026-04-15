@@ -42,3 +42,6 @@
 
 # debug output
 build/
+
+# vscode file
+.vscode/
