@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <climits>
 #include <deque>
 #include <iostream>
 #include <list>
