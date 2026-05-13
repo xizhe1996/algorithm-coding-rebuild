@@ -37,8 +37,33 @@
     在 DFS 回溯或者传递巨大容器时，必须带上 `&`：`void dfs(vector<vector<int>>& res, vector<int>& path)`。忘记写 `&` 会导致每次递归都在深拷贝，直接 TLE (超时)。
 
 ## 5. 🛑 防御性编程“拦截线” (Early Return)
-* 进入任何函数的第一步，先写拦截线，处理极端空输入：
+* **拦截空输入**：进入任何函数的第一步，先写拦截线，处理极端空输入：
     ```cpp
     if (nums.empty()) return 0;
     if (head == nullptr || head->next == nullptr) return head;
     ```
+
+## 6. 🗄️ C++ `unordered_map` (哈希表) 核心拉扯技巧
+* **🌟 神奇的 `operator[]` (方括号访问)**：
+    * **底层机制**：在 C++ 中，如果用 `map[key]` 去访问一个**不存在**的键，它**绝不会报错**，而是默默在底层创建一个该键，赋予默认值（`int` 为 `0`），再返回引用。
+    * **大厂地道写法**：计数时无需写臃肿的 `if-else`。
+    ```cpp
+    // ❌ 业余写法
+    if (map.count(key)) map[key]++;
+    else map[key] = 1;
+
+    // ✅ 大厂地道写法
+    map[key]++; 
+    ```
+* **🔍 `count()` vs `find()` (查找效率的终极较量)**：
+    * **`count(key)`**：只回答“有”或“没有”（返回 1 或 0）。若确认有之后还要用 `map[key]` 取值，会导致**底层哈希函数被计算两次**。
+    * **`find(key)` (终极武器)**：返回指向该键值对的“迭代器”。只算一次哈希，找不到则指向 `map.end()`。
+    ```cpp
+    auto it = map.find(target); // auto 让编译器自己推导迭代器类型
+    if (it != map.end()) {      // 找到了！
+        int val = it->second;   // it->first 是 Key，it->second 是 Value
+    }
+    ```
+* **🛡️ 容器的防御性判空铁律**：
+    * **铁律**：永远使用 `if (nums.empty())` 作为拦截线，**绝对不要**写 `if (nums.size() == 0)`。
+    * **原因**：对于 `vector` 区别不大，但对某些链式容器（如旧版 `std::list`），`size()` 可能是 $O(N)$ 复杂度，而 `empty()` 永远是 $O(1)$。
